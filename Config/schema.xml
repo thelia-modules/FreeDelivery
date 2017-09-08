@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="thelia">
+
+    <table name="free_delivery_condition" namespace="FreeDelivery\Model">
+        <column name="area_id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="module_id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="amount" required="true" scale="6" size="16" type="DECIMAL" />
+
+        <foreign-key foreignTable="area" name="fk_free_delivery_condition_area_id" onDelete="CASCADE">
+            <reference foreign="id" local="area_id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="module" name="fk_free_delivery_condition_module_id" onDelete="CASCADE">
+            <reference foreign="id" local="module_id" />
+        </foreign-key>
+    </table>
+
+    <external-schema filename="local/config/schema.xml" referenceOnly="true" />
+</database>

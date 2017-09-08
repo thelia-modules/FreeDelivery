@@ -1,0 +1,61 @@
+<script>
+    $(function () {
+        var $errorAlert = $('.js_error_freedelivery_save');
+
+        $('.js_input_freedeliv_amount').change(function(){
+            this.dataset.haschanged = 'yes';
+        });
+
+        $('.js_btn_save_toolbar button[type="submit"][name="save_mode"]').click(function(e){
+            e.preventDefault();
+            $errorAlert.addClass("hidden");
+
+            var isCloseBtn = (this.value == 'close');
+
+            var changedAmounts = {};
+            var changedAmountCount = 0;
+            $('.js_input_freedeliv_amount[data-haschanged="yes"]').each(function(){
+                var val = $(this).val();
+
+                if(val.length === 0){
+                    val = null;
+                }
+
+                var moduleKey = 'module_'+this.dataset.deliveryid;
+                var areaKey = 'area_'+this.dataset.areaid;
+
+                if(!changedAmounts.hasOwnProperty(moduleKey)){
+                    changedAmounts[moduleKey] = {};
+                }
+                changedAmounts[moduleKey][areaKey] = val;
+                changedAmountCount++;
+            });
+
+            var dataAjax = {};
+
+            if(changedAmountCount > 0){
+                dataAjax.amounts = changedAmounts;
+            }
+
+            dataAjax.useTaxes = $('input[name="freedelivery_use_taxe"]:checked').val();
+
+            $.ajax({
+                url: "{url path='/admin/module/freedelivery/save'}",
+                data: dataAjax,
+                method: 'POST',
+                success: function () {
+                    if (isCloseBtn) {
+                        window.location.href = "{url path='/admin/modules'}";
+                    } else {
+                        window.location.href = "{url path='/admin/module/FreeDelivery'}";
+                    }
+                },
+                error: function (data) {
+                    $errorAlert.removeClass("hidden");
+                    $errorAlert.html(data.responseText);
+                }
+            });
+
+        });
+    });
+</script>
