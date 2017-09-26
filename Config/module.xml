@@ -13,7 +13,7 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <authors>
         <author>
             <name>Théophile Pumain</name>
@@ -22,7 +22,5 @@
     </authors>
     <type>classic</type>
     <thelia>2.3.0</thelia>
-    <stability>alpha</stability>
-    <mandatory>0</mandatory>
-    <hidden>0</hidden>
+    <stability>other</stability>
 </module>

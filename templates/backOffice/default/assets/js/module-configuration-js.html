@@ -6,6 +6,15 @@
             this.dataset.haschanged = 'yes';
         });
 
+        $('.js_input_update_all').keyup(function(){
+           var moduleId =  $(this).data('module-id');
+           var value =  $(this).val();
+           $('.js_input_freedeliv_amount[data-deliveryid="'+moduleId+'"]').each(function ($e) {
+               $(this).val(value);
+               $(this).trigger('change');
+           });
+        });
+
         $('.js_btn_save_toolbar button[type="submit"][name="save_mode"]').click(function(e){
             e.preventDefault();
             $errorAlert.addClass("hidden");

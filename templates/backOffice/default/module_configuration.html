@@ -1,7 +1,8 @@
+{default_translation_domain domain='freedelivery.bo.default'}
 <div class="general-block-decorator">
     <div class="row">
         <div class="col-md-12 title title-without-tabs">
-            {intl l='Free delivery' d='freedelivery.bo.default'}
+            {intl l='Free delivery' }
         </div>
     </div>
 
@@ -22,19 +23,19 @@
 
             <div>
                 <fieldset class="form-group">
-                    <legend>{intl l='Price parameters' d='freedelivery.bo.default'}</legend>
-                    <span class="help-block">{intl l='If the customer cart price is above the following price, the delivery is free. Should we take into account the cart price with or without taxes ?' d='freedelivery.bo.default'}</span>
+                    <legend>{intl l='Price parameters'}</legend>
+                    <span class="help-block">{intl l='If the customer cart price is above the following price, the delivery is free. Should we take into account the cart price with or without taxes ?'}</span>
 
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="radio" class="form-check-input" name="freedelivery_use_taxe" id="freeDeliveryRadioUseTaxeYes" value="yes" {if $useTaxes}checked{/if}>
-                            {intl l='Use taxes' d='freedelivery.bo.default'}
+                            {intl l='Use taxes'}
                         </label>
                     </div>
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="radio" class="form-check-input" name="freedelivery_use_taxe" id="freeDeliveryRadioUseTaxeNo" value="no" {if !$useTaxes}checked{/if}>
-                            {intl l="Don't use taxes" d='freedelivery.bo.default'}
+                            {intl l="Don't use taxes"}
                         </label>
                     </div>
                 </fieldset>
@@ -56,6 +57,14 @@
                     </thead>
                     <tbody>
                         <tr>
+                        </tr>
+                        <tr>
+                            <td><strong>{intl l="Update all zones for one module"}</strong></td>
+                            {foreach from=$deliveryModules item=deliveryModule}
+                                <td>
+                                    <input class="js_input_update_all" data-module-id="{$deliveryModule->getId()}" type="number">
+                                </td>
+                            {/foreach}
                         </tr>
                         {foreach from=$areas item=area}
                         <tr>
@@ -79,3 +88,4 @@
         </div>
     </div>
 </div>
+{default_translation_domain domain='bo.default'}
