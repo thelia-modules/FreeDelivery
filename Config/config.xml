@@ -8,6 +8,11 @@
         <service id="freedelivery.eventlistener" class="FreeDelivery\EventListener\FreeDeliveryEventListener" scope="request">
             <tag name="kernel.event_subscriber" />
         </service>
+
+        <service id="freedelivery.plugin" class="FreeDelivery\Smarty\Plugins\FreeDelivery">
+            <argument type="service" id="service_container" />
+            <tag name="thelia.parser.register_plugin"/>
+        </service>
     </services>
 
     <hooks>
