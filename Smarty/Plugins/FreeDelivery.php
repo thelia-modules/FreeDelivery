@@ -56,7 +56,7 @@ class FreeDelivery extends AbstractSmartyPlugin
     public function getFreeDelivery($params, $smarty)
     {
         $freeDeliveries = [];
-        $freeDeliveries['best_free_delivery'] = null;
+        $freeDeliveries['best_free_delivery'] = (new FreeDeliveryCondition())->setAmount(0);
 
         $countryId = $params['country_id'];
 
@@ -98,8 +98,9 @@ class FreeDelivery extends AbstractSmartyPlugin
         foreach ($freeDeliveryConditions as $freeDeliveryCondition) {
             if (in_array($freeDeliveryCondition->getModuleId(), $activatedDeliveryModules)) {
                 $freeDeliveries['list'][] = $freeDeliveryCondition;
-                if ($freeDeliveryCondition->getAmount() < $freeDeliveries['best_free_delivery']
-                    || null === $freeDeliveries['best_free_delivery']
+
+                if ($freeDeliveryCondition->getAmount() < $freeDeliveries['best_free_delivery']->getAmount()
+                    || 0 === $freeDeliveries['best_free_delivery']->getAmount()
                 ) {
                     $freeDeliveries['best_free_delivery'] = $freeDeliveryCondition;
                 }
