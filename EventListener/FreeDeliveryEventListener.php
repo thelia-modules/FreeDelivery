@@ -4,6 +4,7 @@ namespace FreeDelivery\EventListener;
 
 use FreeDelivery\FreeDelivery;
 use FreeDelivery\Model\FreeDeliveryConditionQuery;
+use FreeDelivery\Model\Map\FreeDeliveryConditionTableMap;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Core\Event\Delivery\DeliveryPostageEvent;
 use Thelia\Core\Event\TheliaEvents;
@@ -12,25 +13,61 @@ class FreeDeliveryEventListener implements EventSubscriberInterface
 {
     public function processPostage(DeliveryPostageEvent $event)
     {
-        $taxCountry = $event->getCountry();
+        $deliveryCountry = $event->getCountry();
+        $deliveryState = null;
+
+        if ($deliveryCountry === null) {
+            return;
+        }
+
+        if (null !== $deliveryAddress = $event->getAddress()) {
+            $deliveryState = $deliveryAddress->getState();
+        }
 
         if ("yes" === FreeDelivery::getConfigValue('freedelivery_use_tax')) {
-            $cartTotalAmount = $event->getCart()->getTaxedAmount($event->getCountry());
+            $cartTotalAmount = $event->getCart()->getTaxedAmount($deliveryCountry, true, $deliveryState);
         } else {
             $cartTotalAmount = $event->getCart()->getTotalAmount();
         }
 
         $moduleId = $event->getModule()->getModuleModel()->getId();
 
-        foreach ($taxCountry->getAreas() as $area) {
-            $freeDeliveryCondition = FreeDeliveryConditionQuery::create()
-                ->filterByModuleId($moduleId)
-                ->filterByAreaId($area->getId())
-                ->findOne();
 
-            if ($freeDeliveryCondition != null && $cartTotalAmount >= $freeDeliveryCondition->getAmount()) {
-                $event->setPostage(0);
+        if ($deliveryState !== null) {
+            $freeDeliveryConditionCollection = FreeDeliveryConditionQuery::create()
+                ->filterByModuleId($moduleId)
+                ->useAreaQuery()
+                    ->useCountryAreaQuery()
+                        ->filterByStateId($deliveryState->getId())
+                    ->endUse()
+                ->endUse()
+                ->find();
+
+
+            if (!$freeDeliveryConditionCollection->isEmpty()) {
+                foreach ($freeDeliveryConditionCollection as $freeDeliveryCondition) {
+                    if ($cartTotalAmount >= $freeDeliveryCondition->getAmount()) {
+                        $event->setPostage(0);
+                        return;
+                    }
+                }
+                return;
             }
+        }
+
+        $query = FreeDeliveryConditionQuery::create()
+            ->filterByModuleId($moduleId)
+            ->useAreaQuery()
+                ->useCountryAreaQuery()
+                    ->filterByCountryId($deliveryCountry->getId())
+                    ->filterByStateId(null)
+                ->endUse()
+            ->endUse()
+            ->where(FreeDeliveryConditionTableMap::TABLE_NAME.'.amount <= ?', $cartTotalAmount)
+            ->find();
+
+        if (!$query->isEmpty()) {
+            $event->setPostage(0);
         }
     }
 
