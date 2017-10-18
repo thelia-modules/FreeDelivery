@@ -100,7 +100,7 @@ class FreeDelivery extends AbstractSmartyPlugin
                 $freeDeliveries['list'][] = $freeDeliveryCondition;
 
                 if ($freeDeliveryCondition->getAmount() < $freeDeliveries['best_free_delivery']->getAmount()
-                    || 0 === $freeDeliveries['best_free_delivery']->getAmount()
+                    || 0 == $freeDeliveries['best_free_delivery']->getAmount()
                 ) {
                     $freeDeliveries['best_free_delivery'] = $freeDeliveryCondition;
                 }
