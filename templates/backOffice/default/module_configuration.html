@@ -72,7 +72,7 @@
                             {foreach from=$deliveryModules item=deliveryModule}
                             <td>
                                 <div>
-                                    {$amount = {$freeDeliveryConditionResult[$deliveryModule->getId()][$area->getId()]}}
+                                    {$amount = {$freeDeliveryConditionResult[$deliveryModule->getId()][$area->getId()]|default:null}}
                                     <input type="number" step="any" class="js_input_freedeliv_amount"
                                            data-deliveryid="{$deliveryModule->getId()}"
                                            data-areaid="{$area->getId()}"

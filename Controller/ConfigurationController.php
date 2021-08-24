@@ -4,14 +4,23 @@ namespace FreeDelivery\Controller;
 
 use FreeDelivery\FreeDelivery;
 use FreeDelivery\Model\FreeDeliveryConditionQuery;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\JsonResponse;
+use Thelia\Core\Translation\Translator;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/admin/module/freedelivery/save", name="freedelivery_save")
+ */
 class ConfigurationController extends BaseAdminController
 {
-    public function saveAction()
+    /**
+     * @Route("", name="", methods="POST")
+     */
+    public function saveAction(RequestStack $requestStack)
     {
-        $request = $this->getRequest();
+        $request = $requestStack->getCurrentRequest();
 
         try {
             $useTaxes = $request->request->get("useTaxes");
@@ -36,7 +45,7 @@ class ConfigurationController extends BaseAdminController
                                 ->delete();
                         } else {
                             if (!$isNumeric || $amount < 0) {
-                                throw new \Exception($this->getTranslator()->trans(
+                                throw new \Exception(Translator::getInstance()->trans(
                                     "Invalid value : %value",
                                     [ '%value' => $$amount ]
                                 ));

@@ -7,6 +7,8 @@ use FreeDelivery\Model\FreeDeliveryConditionQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Model\CountryQuery;
 use Thelia\Model\ModuleQuery;
 use Thelia\Module\BaseModule;
@@ -16,10 +18,7 @@ use TheliaSmarty\Template\SmartyPluginDescriptor;
 
 class FreeDelivery extends AbstractSmartyPlugin
 {
-    /** @var ContainerInterface Service Container */
-    protected $container = null;
-
-    /** @var \Thelia\Core\HttpFoundation\Request The Request */
+    /** @var Request The Request */
     protected $currentRequest;
 
     /** @var EventDispatcherInterface */
@@ -29,18 +28,18 @@ class FreeDelivery extends AbstractSmartyPlugin
     protected $taxEngine;
 
     /**
-     * @param ContainerInterface $container
+     * FreeDelivery constructor.
+     * @param RequestStack $requestStack
+     * @param EventDispatcherInterface $dispatcher
+     * @param TaxEngine $taxEngine
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(RequestStack $requestStack, EventDispatcherInterface $dispatcher, TaxEngine $taxEngine)
     {
-        $this->container = $container;
-
-        $this->currentRequest = $container->get('request_stack')->getCurrentRequest();
-
-        $this->dispatcher = $container->get('event_dispatcher');
-
-        $this->taxEngine = $container->get('thelia.taxEngine');
+        $this->currentRequest = $requestStack->getCurrentRequest();
+        $this->dispatcher = $dispatcher;
+        $this->taxEngine = $taxEngine;
     }
+
 
     public function getPluginDescriptors()
     {
