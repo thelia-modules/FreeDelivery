@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<database defaultIdMethod="native" name="thelia">
+<database defaultIdMethod="native" name="TheliaMain">
 
     <table name="free_delivery_condition" namespace="FreeDelivery\Model">
         <column name="area_id" primaryKey="true" required="true" type="INTEGER" />

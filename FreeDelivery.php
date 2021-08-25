@@ -13,6 +13,7 @@
 namespace FreeDelivery;
 
 use Propel\Runtime\Connection\ConnectionInterface;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Install\Database;
 use Thelia\Module\BaseModule;
 
@@ -23,14 +24,22 @@ class FreeDelivery extends BaseModule
 
     public function preActivation(ConnectionInterface $con = null)
     {
-        if (!$this->getConfigValue('is_initialized', false)) {
+        if (!self::getConfigValue('is_initialized', false)) {
             $database = new Database($con);
 
             $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
 
-            $this->setConfigValue('is_initialized', true);
+            self::setConfigValue('is_initialized', true);
         }
 
         return true;
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }
