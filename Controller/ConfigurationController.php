@@ -27,12 +27,13 @@ class ConfigurationController extends BaseAdminController
             if ($useTaxes == "yes" || $useTaxes == "no") {
                 FreeDelivery::setConfigValue('freedelivery_use_tax', $useTaxes);
             }
+            $data = $request->request->all();
 
-            $amountsArray = $request->request->get("amounts");
-            if (!empty($amountsArray)) {
+
+            if (isset($data['amounts'])) {
                 $moduleKeyPrefix = "module_";
                 $areaKeyPrefix = "area_";
-                foreach ($amountsArray as $moduleKey => $areaArray) {
+                foreach ($data['amounts'] as $moduleKey => $areaArray) {
                     $moduleId = substr($moduleKey, strlen($moduleKeyPrefix));
                     foreach ($areaArray as $areaKey => $amount) {
                         $areaId = substr($areaKey, strlen($areaKeyPrefix));
@@ -62,8 +63,8 @@ class ConfigurationController extends BaseAdminController
                 }
             }
         } catch (\Exception $e) {
-            return JsonResponse::create($e->getMessage(), 500);
+            return new JsonResponse($e->getMessage(), 500);
         }
-        return JsonResponse::create("Success");
+        return new JsonResponse("Success");
     }
 }
