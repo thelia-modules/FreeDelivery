@@ -76,7 +76,7 @@ class FreeDelivery extends AbstractSmartyPlugin
                 ->findOneByByDefault(1);
         }
 
-        $areas = $country->getAreas();
+        $areas = $country->getCountryAreas();
         $areasString = "";
 
         foreach ($areas as $area) {
