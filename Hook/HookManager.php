@@ -21,7 +21,10 @@ class HookManager extends BaseHook
         $freeDeliveryConditionResult = [];
 
         $deliveryModules = ModuleQuery::create()
-            ->findByCategory('delivery');
+            ->filterByActivate(1)
+            ->filterByCategory('delivery')
+            ->find();
+
 
         $areas = AreaQuery::create()->find();
 
