@@ -1,49 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FreeDelivery\Hook;
 
 use FreeDelivery\FreeDelivery;
 use FreeDelivery\Model\FreeDeliveryCondition;
 use FreeDelivery\Model\FreeDeliveryConditionQuery;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
+use Thelia\Core\Template\Parser\ParserResolver;
 use Thelia\Model\AreaQuery;
 use Thelia\Model\ModuleQuery;
 
-/**
- * Class HookManager
- * @package FreeDelivery\Hook
- */
 class HookManager extends BaseHook
 {
-    public function onModuleConfiguration(HookRenderEvent $event)
-    {
-        $freeDeliveryConditionResult = [];
+    public function __construct(
+        ?EventDispatcherInterface $dispatcher = null,
+        ?ParserResolver $parserResolver = null,
+    ) {
+        parent::__construct($dispatcher, $parserResolver);
+    }
 
+    public static function getSubscribedHooks(): array
+    {
+        return [
+            'module.configuration' => [
+                ['type' => 'back', 'method' => 'onModuleConfiguration'],
+            ],
+            'module.config-js' => [
+                ['type' => 'back', 'method' => 'onModuleConfigJs'],
+            ],
+        ];
+    }
+
+    public function onModuleConfiguration(HookRenderEvent $event): void
+    {
         $deliveryModules = ModuleQuery::create()
             ->filterByActivate(1)
             ->filterByCategory('delivery')
             ->find();
 
-
         $areas = AreaQuery::create()->find();
 
-        $freeDeliveryConditionCollection = FreeDeliveryConditionQuery::create()->find();
-
-        $useTaxes = (FreeDelivery::getConfigValue('freedelivery_use_tax') == "yes");
-
-        if (null !== $freeDeliveryConditionCollection) {
-            /** @var FreeDeliveryCondition $freeDeliveryCondition */
-            foreach ($freeDeliveryConditionCollection as $freeDeliveryCondition) {
-                $freeDeliveryConditionResult[$freeDeliveryCondition->getModuleId()][$freeDeliveryCondition->getAreaId()] = $freeDeliveryCondition->getAmount();
-            }
+        $freeDeliveryConditionResult = [];
+        /** @var FreeDeliveryCondition $freeDeliveryCondition */
+        foreach (FreeDeliveryConditionQuery::create()->find() as $freeDeliveryCondition) {
+            $freeDeliveryConditionResult[$freeDeliveryCondition->getModuleId()][$freeDeliveryCondition->getAreaId()]
+                = $freeDeliveryCondition->getAmount();
         }
+
+        $useTaxes = 'yes' === FreeDelivery::getConfigValue('freedelivery_use_tax');
 
         $event->add(
             $this->render(
-                'module_configuration.html',
-                compact('deliveryModules', 'areas', 'freeDeliveryConditionResult', 'useTaxes')
+                'FreeDelivery/module-configuration.html.twig',
+                [
+                    'deliveryModules' => $deliveryModules,
+                    'areas' => $areas,
+                    'freeDeliveryConditionResult' => $freeDeliveryConditionResult,
+                    'useTaxes' => $useTaxes,
+                ]
             )
+        );
+    }
+
+    public function onModuleConfigJs(HookRenderEvent $event): void
+    {
+        $event->add(
+            $this->render('FreeDelivery/module-config-js.html.twig')
         );
     }
 }

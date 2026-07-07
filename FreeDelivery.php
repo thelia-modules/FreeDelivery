@@ -10,11 +10,13 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
+declare(strict_types=1);
+
 namespace FreeDelivery;
 
 use Propel\Runtime\Connection\ConnectionInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
-use Thelia\Install\Database;
+use Thelia\Core\Install\Database;
 use Thelia\Module\BaseModule;
 
 class FreeDelivery extends BaseModule
@@ -22,14 +24,14 @@ class FreeDelivery extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'freedelivery';
 
-    public function preActivation(ConnectionInterface $con = null)
+    public function preActivation(?ConnectionInterface $con = null): bool
     {
-        if (!self::getConfigValue('is_initialized', false)) {
+        if (!self::getConfigValue('is_initialized')) {
             $database = new Database($con);
 
-            $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
+            $database->insertSql(null, [__DIR__.'/Config/thelia.sql']);
 
-            self::setConfigValue('is_initialized', true);
+            self::setConfigValue('is_initialized', '1');
         }
 
         return true;
@@ -38,7 +40,7 @@ class FreeDelivery extends BaseModule
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
-            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->exclude([__DIR__.'/I18n/*'])
             ->autowire(true)
             ->autoconfigure(true);
     }

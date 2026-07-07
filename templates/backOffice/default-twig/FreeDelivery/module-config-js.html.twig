@@ -1,0 +1,86 @@
+<script>
+(function () {
+    'use strict';
+
+    var config = {
+        urlSave: '{{ path('freedelivery.admin.save') }}'
+    };
+
+    function showError(message) {
+        var alertEl = document.querySelector('#freedelivery-config .js-fd-error');
+        if (!alertEl) return;
+        alertEl.innerHTML = message;
+        alertEl.classList.remove('d-none');
+    }
+
+    function hideError() {
+        var alertEl = document.querySelector('#freedelivery-config .js-fd-error');
+        if (alertEl) alertEl.classList.add('d-none');
+    }
+
+    function postData(url, data) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+            body: new URLSearchParams(data).toString()
+        }).then(function (response) {
+            return response.json().then(function (json) {
+                return {ok: response.ok, body: json};
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var container = document.getElementById('freedelivery-config');
+        if (!container) return;
+
+        // Flag a cell as changed
+        container.addEventListener('change', function (e) {
+            var input = e.target.closest('.js-fd-amount');
+            if (input) input.dataset.haschanged = 'yes';
+        });
+
+        // Propagate a column value to every zone of the same module
+        container.addEventListener('input', function (e) {
+            var updateAll = e.target.closest('.js-fd-update-all');
+            if (!updateAll) return;
+            var moduleId = updateAll.dataset.moduleId;
+            var value = updateAll.value;
+            container.querySelectorAll('.js-fd-amount[data-deliveryid="' + moduleId + '"]').forEach(function (cell) {
+                cell.value = value;
+                cell.dataset.haschanged = 'yes';
+            });
+        });
+
+        // Save
+        var saveBtn = container.querySelector('.js-fd-save');
+        if (!saveBtn) return;
+
+        saveBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            hideError();
+
+            var payload = {};
+            var checkedTax = container.querySelector('input[name="freedelivery_use_taxe"]:checked');
+            if (checkedTax) payload.useTaxes = checkedTax.value;
+
+            container.querySelectorAll('.js-fd-amount[data-haschanged="yes"]').forEach(function (cell) {
+                var moduleKey = 'module_' + cell.dataset.deliveryid;
+                var areaKey = 'area_' + cell.dataset.areaid;
+                var key = 'amounts[' + moduleKey + '][' + areaKey + ']';
+                payload[key] = cell.value.length === 0 ? '' : cell.value;
+            });
+
+            postData(config.urlSave, payload).then(function (res) {
+                if (res.ok && res.body && res.body.success) {
+                    window.location.reload();
+                } else {
+                    showError((res.body && res.body.message) ? res.body.message : 'Error');
+                }
+            }).catch(function (err) {
+                showError(err.toString());
+            });
+        });
+    });
+}());
+</script>
