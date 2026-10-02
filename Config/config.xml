@@ -4,11 +4,6 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
-    <hooks>
-        <hook id="freedelivery.hook" class="FreeDelivery\Hook\HookManager">
-            <tag name="hook.event_listener" event="module.configuration" type="back" method="onModuleConfiguration" />
-            <tag name="hook.event_listener" event="module.config-js" type="back" templates="render:assets/js/module-configuration-js.html" />
-        </hook>
-    </hooks>
+    <!-- Hooks, services and routes are auto-discovered in Thelia 3 (see FreeDelivery::configureServices). -->
 
 </config>

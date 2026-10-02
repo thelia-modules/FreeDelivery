@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FreeDelivery\EventListener;
 
 use FreeDelivery\FreeDelivery;
@@ -9,9 +11,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Core\Event\Delivery\DeliveryPostageEvent;
 use Thelia\Core\Event\TheliaEvents;
 
-class FreeDeliveryEventListener implements EventSubscriberInterface
+final class FreeDeliveryEventListener implements EventSubscriberInterface
 {
-    public function processPostage(DeliveryPostageEvent $event)
+    public function processPostage(DeliveryPostageEvent $event): void
     {
         $deliveryCountry = $event->getCountry();
         $deliveryState = null;
@@ -71,10 +73,10 @@ class FreeDeliveryEventListener implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
-            TheliaEvents::MODULE_DELIVERY_GET_POSTAGE => ['processPostage', 64]
+            TheliaEvents::MODULE_DELIVERY_GET_POSTAGE => ['processPostage', 64],
         ];
     }
 }

@@ -1,0 +1,87 @@
+{# Configuration fragment — no {% extends %} — rendered inside the module-configure page #}
+
+<div class="card mb-4" id="freedelivery-config">
+    <div class="card-header">
+        {{ 'Free delivery'|trans({}, 'freedelivery.bo.default') }}
+    </div>
+    <div class="card-body">
+
+        <div class="alert alert-danger d-none js-fd-error" role="alert"></div>
+
+        {# Tax parameters #}
+        <fieldset class="mb-4">
+            <legend class="h6">{{ 'Price parameters'|trans({}, 'freedelivery.bo.default') }}</legend>
+            <p class="text-muted small">
+                {{ 'If the customer cart price is above the following price, the delivery is free. Should we take into account the cart price with or without taxes ?'|trans({}, 'freedelivery.bo.default') }}
+            </p>
+
+            <div class="form-check">
+                <input type="radio" class="form-check-input" name="freedelivery_use_taxe"
+                       id="freeDeliveryRadioUseTaxeYes" value="yes" {{ useTaxes ? 'checked' : '' }}>
+                <label class="form-check-label" for="freeDeliveryRadioUseTaxeYes">
+                    {{ 'Use taxes'|trans({}, 'freedelivery.bo.default') }}
+                </label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" name="freedelivery_use_taxe"
+                       id="freeDeliveryRadioUseTaxeNo" value="no" {{ not useTaxes ? 'checked' : '' }}>
+                <label class="form-check-label" for="freeDeliveryRadioUseTaxeNo">
+                    {{ "Don't use taxes"|trans({}, 'freedelivery.bo.default') }}
+                </label>
+            </div>
+        </fieldset>
+
+        {# Free delivery threshold matrix: delivery modules × areas #}
+        {% if deliveryModules|length %}
+            <div class="table-responsive">
+                <table class="table table-striped table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {% for deliveryModule in deliveryModules %}
+                                <th>{{ deliveryModule.code }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>{{ 'Update all zones for one module'|trans({}, 'freedelivery.bo.default') }}</strong></td>
+                            {% for deliveryModule in deliveryModules %}
+                                <td>
+                                    <input type="number" step="any" class="form-control form-control-sm js-fd-update-all"
+                                           data-module-id="{{ deliveryModule.id }}">
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% for area in areas %}
+                            <tr>
+                                <td>{{ area.name }}</td>
+                                {% for deliveryModule in deliveryModules %}
+                                    {% set amount = freeDeliveryConditionResult[deliveryModule.id][area.id] ?? null %}
+                                    <td>
+                                        <input type="number" step="any" class="form-control form-control-sm js-fd-amount"
+                                               data-deliveryid="{{ deliveryModule.id }}"
+                                               data-areaid="{{ area.id }}"
+                                               value="{{ amount is not null ? amount : '' }}">
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                {{ 'No active delivery module found.'|trans({}, 'freedelivery.bo.default') }}
+            </div>
+        {% endif %}
+
+        {% if is_granted('UPDATE', {resource: 'admin.module', module: 'FreeDelivery'}) %}
+            <div class="mt-3">
+                <button type="button" class="btn btn-primary btn-sm js-fd-save">
+                    <i class="bi bi-save"></i> {{ 'Save'|trans({}, 'freedelivery.bo.default') }}
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
