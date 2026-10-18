@@ -18,8 +18,7 @@ use Thelia\Module\BaseModule;
 /**
  * Shared resolution of the free-delivery conditions applicable to a country.
  *
- * Consumed by both the (legacy) Smarty plugin and the Twig extension so the
- * front-office logic lives in a single place.
+ * Consumed by the Twig extension.
  */
 final readonly class FreeDeliveryResolver
 {
